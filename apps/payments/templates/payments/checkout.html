@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Pembayaran - ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+        <h1 class="text-3xl lg:text-4xl font-serif font-bold text-stone-900">Pembayaran</h1>
+        <p class="text-stone-500 mt-2">Selesaikan pembayaran pesanan Anda</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div class="lg:col-span-3 space-y-6">
+            <div class="bg-white rounded-2xl border border-stone-100 p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-serif font-bold text-stone-900">Ringkasan Pesanan</h2>
+                        <p class="text-sm text-stone-400">{{ order.order_number }}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    {% for item in order.items.all %}
+                    <div class="flex gap-4 py-3 {% if not forloop.last %}border-b border-stone-50{% endif %}">
+                        <div class="w-16 h-16 bg-stone-50 rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
+                            {% if item.product and item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}" loading="lazy" class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-stone-200">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-stone-800">{{ item.product_name }}</p>
+                            <p class="text-sm text-stone-400">{{ item.quantity }} x {{ item.price|rupiah }}</p>
+                        </div>
+                        <p class="text-sm font-bold text-stone-800">{{ item.total_price|rupiah }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-stone-400 text-sm">Tidak ada item dalam pesanan.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-stone-100 p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">Alamat Pengiriman</h2>
+                </div>
+                <div class="text-sm text-stone-600 space-y-1">
+                    <p class="font-medium text-stone-800">{{ order.recipient_name }}</p>
+                    <p>{{ order.phone }}</p>
+                    <p>{{ order.shipping_address }}</p>
+                    <p>{{ order.city }}{% if order.province %}, {{ order.province }}{% endif %}{% if order.postal_code %} - {{ order.postal_code }}{% endif %}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl border border-stone-100 p-6 sticky top-24 shadow-sm">
+                <h2 class="text-lg font-serif font-bold text-stone-900 mb-6">Total Pembayaran</h2>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-500">Subtotal</span>
+                        <span class="font-medium text-stone-800">{{ order.total_price|rupiah }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-500">Pengiriman</span>
+                        <span class="font-medium text-emerald-600">Gratis</span>
+                    </div>
+                    <hr class="border-stone-100">
+                    <div class="flex justify-between items-center">
+                        <span class="text-base font-serif font-bold text-stone-900">Total</span>
+                        <span class="text-2xl font-bold text-amber-600">{{ order.total_price|rupiah }}</span>
+                    </div>
+                </div>
+
+                <button id="pay-button"
+                    class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Bayar Sekarang
+                </button>
+
+                <div class="mt-6 space-y-3">
+                    <div class="flex items-center gap-2 text-xs text-stone-400">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Pembayaran aman terenkripsi
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-stone-400">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Didukung oleh Midtrans
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center gap-3">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Visa_Inc._logo.svg" alt="Visa" class="h-6 opacity-40">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard" class="h-6 opacity-40">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ client_key }}"></script>
+<script>
+document.getElementById('pay-button').onclick = function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>';
+
+    snap.pay('{{ payment.snap_token }}', {
+        onSuccess: function(result) {
+            window.location.href = "{% url 'payments:finish' order.id %}";
+        },
+        onPending: function(result) {
+            window.location.href = "{% url 'payments:unfinish' order.id %}";
+        },
+        onError: function(result) {
+            btn.disabled = false;
+            btn.innerHTML = 'Bayar Sekarang';
+            window.location.href = "{% url 'payments:error' order.id %}";
+        },
+        onClose: function() {
+            btn.disabled = false;
+            btn.innerHTML = 'Bayar Sekarang';
+        }
+    });
+};
+</script>
+{% endblock %}

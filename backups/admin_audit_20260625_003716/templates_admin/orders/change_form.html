@@ -1,0 +1,135 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static core_tags %}
+
+{% block extrastyle %}
+{{ block.super }}
+{% endblock %}
+
+{% block after_field_sets %}
+{% if original %}
+<div class="order-summary-grid">
+    <div class="order-summary-card">
+        <h4>Customer</h4>
+        <div class="value">{{ original.user.get_full_name|default:original.user.username }}</div>
+        <div class="sub">{{ original.user.email }}</div>
+        <div style="margin-top:8px;font-size:13px;">
+            <div><strong>Penerima:</strong> {{ original.recipient_name }}</div>
+            <div><strong>Telp:</strong> {{ original.phone }}</div>
+            <div><strong>Alamat:</strong> {{ original.shipping_address }}, {{ original.city }}{% if original.province %}, {{ original.province }}{% endif %} {{ original.postal_code }}</div>
+        </div>
+    </div>
+    <div class="order-summary-card">
+        <h4>Ringkasan Pesanan</h4>
+        <div class="value">{{ original.order_number }}</div>
+        <div class="sub">Dibuat: {{ original.created_at|date:"d M Y H:i" }}</div>
+        <div style="margin-top:8px;font-size:13px;">
+            <div><strong>Subtotal:</strong> {{ original.subtotal|rupiah }}</div>
+            {% if original.discount_amount %}<div><strong>Diskon:</strong> -{{ original.discount_amount|rupiah }}</div>{% endif %}
+            <div style="font-size:16px;font-weight:700;color:var(--dark);margin-top:4px;"><strong>Total:</strong> {{ original.total_price|rupiah }}</div>
+            {% if original.voucher %}<div><strong>Voucher:</strong> {{ original.voucher.code }}</div>{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="order-summary-card" style="margin-bottom:20px;">
+    <h4 style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin:0 0 12px;">Produk dalam Pesanan</h4>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+            <tr>
+                <th style="text-align:left;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Produk</th>
+                <th style="text-align:right;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Harga</th>
+                <th style="text-align:right;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Qty</th>
+                <th style="text-align:right;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in original.items.all %}
+            <tr>
+                <td style="padding:8px 0;border-bottom:1px solid var(--border-light);">
+                    {% if item.product %}
+                    <a href="{% url 'admin:products_product_change' item.product.id %}">{{ item.product_name }}</a>
+                    {% else %}
+                    {{ item.product_name }}
+                    {% endif %}
+                </td>
+                <td style="padding:8px 0;border-bottom:1px solid var(--border-light);text-align:right;">{{ item.price|rupiah }}</td>
+                <td style="padding:8px 0;border-bottom:1px solid var(--border-light);text-align:right;">{{ item.quantity }}</td>
+                <td style="padding:8px 0;border-bottom:1px solid var(--border-light);text-align:right;font-weight:600;">{{ item.total_price|rupiah }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="padding:8px 0;text-align:right;font-weight:600;">Total</td>
+                <td style="padding:8px 0;text-align:right;font-weight:700;font-size:15px;">{{ original.total_price|rupiah }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="order-summary-card" style="margin-bottom:20px;">
+    <h4 style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;margin:0 0 12px;">Riwayat Status</h4>
+    <ul class="timeline">
+        <li class="timeline-item {% if original.status == 'pending_payment' %}active{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-status">Pesanan Dibuat</div>
+            <div class="timeline-date">{{ original.created_at|date:"d M Y H:i" }}</div>
+        </li>
+        <li class="timeline-item {% if original.status == 'paid' or original.status == 'processing' or original.status == 'shipped' or original.status == 'delivered' or original.status == 'completed' %}active{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-status">Pembayaran Dikonfirmasi</div>
+            <div class="timeline-date">{% if original.paid_at %}{{ original.paid_at|date:"d M Y H:i" }}{% else %}—{% endif %}</div>
+        </li>
+        <li class="timeline-item {% if original.status == 'processing' or original.status == 'shipped' or original.status == 'delivered' or original.status == 'completed' %}active{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-status">Diproses</div>
+            <div class="timeline-date">{% if original.processing_at %}{{ original.processing_at|date:"d M Y H:i" }}{% else %}—{% endif %}</div>
+        </li>
+        <li class="timeline-item {% if original.status == 'shipped' or original.status == 'delivered' or original.status == 'completed' %}active{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-status">Dikirim</div>
+            <div class="timeline-date">{% if original.shipped_at %}{{ original.shipped_at|date:"d M Y H:i" }}{% else %}—{% endif %}</div>
+        </li>
+        <li class="timeline-item {% if original.status == 'delivered' or original.status == 'completed' %}active{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-status">Diterima</div>
+            <div class="timeline-date">{% if original.delivered_at %}{{ original.delivered_at|date:"d M Y H:i" }}{% else %}—{% endif %}</div>
+        </li>
+        <li class="timeline-item {% if original.status == 'completed' %}active{% endif %}">
+            <div class="timeline-dot"></div>
+            <div class="timeline-status">Selesai</div>
+            <div class="timeline-date">{% if original.completed_at %}{{ original.completed_at|date:"d M Y H:i" }}{% else %}—{% endif %}</div>
+        </li>
+        {% if original.status == 'cancelled' %}
+        <li class="timeline-item active" style="--dot-color:var(--danger);">
+            <div class="timeline-dot" style="border-color:var(--danger);background:var(--danger);"></div>
+            <div class="timeline-status" style="color:var(--danger);">Dibatalkan</div>
+            <div class="timeline-date">{{ original.updated_at|date:"d M Y H:i" }}</div>
+        </li>
+        {% endif %}
+    </ul>
+
+    {% if original.status_history.exists %}
+    <h4 style="font-size:12px;font-weight:600;color:var(--text-secondary);margin:16px 0 8px;">Riwayat Lengkap</h4>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+            <tr>
+                <th style="text-align:left;padding:6px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Status</th>
+                <th style="text-align:left;padding:6px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Catatan</th>
+                <th style="text-align:right;padding:6px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Waktu</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for h in original.status_history.all %}
+            <tr>
+                <td style="padding:6px 0;border-bottom:1px solid var(--border-light);"><span class="status-badge {{ h.status }}"><span class="dot"></span>{{ h.get_status_display }}</span></td>
+                <td style="padding:6px 0;border-bottom:1px solid var(--border-light);">{% if h.notes %}{{ h.notes }}{% else %}—{% endif %}</td>
+                <td style="padding:6px 0;border-bottom:1px solid var(--border-light);text-align:right;color:var(--text-muted);">{{ h.created_at|date:"d M Y H:i" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

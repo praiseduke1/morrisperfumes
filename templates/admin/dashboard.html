@@ -1,0 +1,685 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static core_tags %}
+
+{% block title %}Dashboard Analytics | {{ site_header|default:_('Django site admin') }}{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard-page{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+<style>
+  #content { padding: 0 !important; margin: 0 !important; }
+  #content-main { float: none; width: 100%; }
+  .breadcrumbs { display: none !important; }
+  #header { background: rgba(17,24,39,0.95) !important; border-bottom: 1px solid #374151 !important; }
+  #user-tools a { color: #9CA3AF !important; }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content_title %}
+<div class="dashboard" style="padding-bottom:0;">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+      <h1 style="font-size:24px;font-weight:700;color:var(--dash-text);margin:0;letter-spacing:-.03em;">Analytics Dashboard</h1>
+      <p style="font-size:13px;color:var(--dash-text-muted);margin:2px 0 0 0;">Ringkasan performa toko secara real-time</p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <div class="d-flex gap-1" role="tablist">
+        <button class="pill-btn" data-period="today" onclick="showPeriod('today')">Hari Ini</button>
+        <button class="pill-btn" data-period="week" onclick="showPeriod('week')">Minggu Ini</button>
+        <button class="pill-btn" data-period="month" onclick="showPeriod('month')">Bulan Ini</button>
+      </div>
+      <div class="d-flex gap-1" style="border-left:1px solid var(--dash-border);padding-left:8px;">
+        <a href="?days=7"  class="pill-btn {% if selected_days == 7 %}active{% endif %}">7H</a>
+        <a href="?days=30" class="pill-btn {% if selected_days == 30 %}active{% endif %}">30H</a>
+        <a href="?days=90" class="pill-btn {% if selected_days == 90 %}active{% endif %}">90H</a>
+        <a href="?days=365"class="pill-btn {% if selected_days == 365 %}active{% endif %}">365H</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard" style="padding-top:0;">
+
+  {# ═══════════════════════════════════════════
+     SECTION 2: 6 KPI CARDS
+     ═══════════════════════════════════════════ #}
+  <div class="row g-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-12">
+      <div class="kpi-card" style="--accent:#10B981;">
+        <div class="kpi-label">Total Pendapatan</div>
+        <div class="kpi-value kpi-text mt-1" data-today="{{ revenue_today|rupiah }}" data-week="{{ revenue_week|rupiah }}" data-month="{{ revenue_month|rupiah }}">{{ revenue_today|rupiah }}</div>
+        <div class="kpi-footer">
+          <span class="growth-badge growth-badge-el" data-today="{{ revenue_today_change }}" data-week="{{ revenue_week_change }}" data-month="{{ revenue_month_change }}">↑ {{ revenue_today_change|stringformat:"+.1f" }}%</span>
+          <span class="kpi-period growth-period-text" data-today="vs kemarin" data-week="vs minggu lalu" data-month="vs bulan lalu">vs kemarin</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-12">
+      <div class="kpi-card" style="--accent:#3B82F6;">
+        <div class="kpi-label">Total Pesanan</div>
+        <div class="kpi-value kpi-text mt-1" data-today="{{ orders_today }}" data-week="{{ orders_week }}" data-month="{{ orders_month }}">{{ orders_today }}</div>
+        <div class="kpi-footer">
+          <span class="growth-badge growth-badge-el" data-today="{{ orders_today_change }}" data-week="{{ orders_week_change }}" data-month="{{ orders_month_change }}">↑ {{ orders_today_change|stringformat:"+.1f" }}%</span>
+          <span class="kpi-period growth-period-text" data-today="vs kemarin" data-week="vs minggu lalu" data-month="vs bulan lalu">vs kemarin</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-12">
+      <div class="kpi-card" style="--accent:#8B5CF6;">
+        <div class="kpi-label">Pelanggan Aktif</div>
+        <div class="kpi-value kpi-text mt-1" data-today="{{ customers_active_today }}" data-week="{{ customers_active_week }}" data-month="{{ customers_active_month }}">{{ customers_active_today }}</div>
+        <div class="kpi-footer">
+          <span class="growth-badge growth-up">{{ customers_new_30d }} baru</span>
+          <span class="kpi-period">30 hari</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-12">
+      <div class="kpi-card" style="--accent:#F59E0B;">
+        <div class="kpi-label">Produk Aktif</div>
+        <div class="kpi-value mt-1">{{ active_products }}</div>
+        <div class="kpi-footer">
+          {% if products_total %}
+          <span class="kpi-period">{{ products_available }} tersedia &middot; {{ products_total }} total</span>
+          {% else %}
+          <span class="kpi-period">Belum ada produk</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-12">
+      <div class="kpi-card" style="--accent:#06B6D4;">
+        <div class="kpi-label">Rata-rata Pesanan</div>
+        <div class="kpi-value kpi-text mt-1" data-today="{{ aov_today|rupiah }}" data-week="{{ aov_week|rupiah }}" data-month="{{ aov_month|rupiah }}">{{ aov_today|rupiah }}</div>
+        <div class="kpi-footer">
+          <span class="growth-badge growth-badge-el" data-today="{{ aov_today_change }}" data-week="{{ aov_week_change }}" data-month="{{ aov_month_change }}">↑ {{ aov_today_change|stringformat:"+.1f" }}%</span>
+          <span class="kpi-period growth-period-text" data-today="vs kemarin" data-week="vs minggu lalu" data-month="vs bulan lalu">vs kemarin</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-12">
+      <div class="kpi-card" style="--accent:#EC4899;">
+        <div class="kpi-label">Tingkat Pembayaran</div>
+        <div class="kpi-value kpi-text mt-1" data-today="{{ paid_rate_today }}%" data-week="{{ paid_rate_week }}%" data-month="{{ paid_rate_month }}%">{{ paid_rate_today }}%</div>
+        <div class="kpi-footer">
+          <span class="growth-badge growth-badge-el" data-today="{{ paid_rate_today_change }}" data-week="{{ paid_rate_week_change }}" data-month="{{ paid_rate_month_change }}">{% if paid_rate_today_change >= 0 %}↑{% else %}↓{% endif %} {{ paid_rate_today_change|stringformat:"+.0f" }}%</span>
+          <span class="kpi-period growth-period-text" data-today="vs kemarin" data-week="vs minggu lalu" data-month="vs bulan lalu">vs kemarin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ═══════════════════════════════════════════
+     SECTION 3: MAIN ANALYTICS (8 + 4)
+     ═══════════════════════════════════════════ #}
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Pendapatan &amp; Pesanan</span>
+          <span style="font-size:.72rem;color:var(--dash-text-muted);">{{ selected_days }} hari terakhir</span>
+        </div>
+        <div class="dash-card-body">
+          <div class="chart-wrap">
+            {% if has_chart_data %}
+            <canvas id="mainChart"></canvas>
+            {% else %}
+            <div class="empty-state">
+              <div class="empty-state-icon">📊</div>
+              <div class="empty-state-text">Belum cukup data untuk analisis tren</div>
+              <span class="empty-state-hint">Kumpulkan lebih banyak data untuk melihat tren pendapatan.</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Quick Insights</span>
+        </div>
+        <div class="dash-card-body insight-list">
+          {% if has_any_data %}
+            {% if revenue_today_change > 0 %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(16,185,129,.12);color:#10B981;">📈</div>
+              <div class="insight-body">
+                <div class="insight-title">Pendapatan <strong>naik {{ revenue_today_change|stringformat:"+.0f" }}%</strong></div>
+                <div class="insight-sub">{{ revenue_yesterday|rupiah }} → {{ revenue_today|rupiah }}</div>
+              </div>
+            </div>
+            {% elif revenue_today_change < 0 %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(239,68,68,.12);color:#EF4444;">📉</div>
+              <div class="insight-body">
+                <div class="insight-title">Pendapatan <strong>turun {{ revenue_today_change|stringformat:"+.0f" }}%</strong></div>
+                <div class="insight-sub">{{ revenue_yesterday|rupiah }} → {{ revenue_today|rupiah }}</div>
+              </div>
+            </div>
+            {% else %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(107,114,128,.12);color:var(--dash-text-muted);">📊</div>
+              <div class="insight-body">
+                <div class="insight-title">Pendapatan stabil</div>
+                <div class="insight-sub">Tidak ada perubahan signifikan</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if best_product %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(245,158,11,.12);color:#F59E0B;">🏆</div>
+              <div class="insight-body">
+                <div class="insight-title">Produk terlaris: <strong>{{ best_product.name }}</strong></div>
+                <div class="insight-sub">{{ best_product.total_sold }} terjual &middot; {{ best_product.revenue|rupiah }}</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if best_customer %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(139,92,246,.12);color:#8B5CF6;">⭐</div>
+              <div class="insight-body">
+                <div class="insight-title">Customer terbaik: <strong>{{ best_customer.user.get_full_name|default:best_customer.user.username }}</strong></div>
+                <div class="insight-sub">{{ best_customer.order_count }} pesanan &middot; {{ best_customer.total_spent|rupiah }}</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if sidebar_pending %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(245,158,11,.12);color:#F59E0B;">⏳</div>
+              <div class="insight-body">
+                <div class="insight-title">Pesanan pending: <strong>{{ sidebar_pending }}</strong></div>
+                <div class="insight-sub">Menunggu konfirmasi pembayaran</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if sidebar_low_stock_count %}
+            <div class="insight-item">
+              <div class="insight-icon-box" style="background:rgba(239,68,68,.12);color:#EF4444;">⚠️</div>
+              <div class="insight-body">
+                <div class="insight-title">Stok menipis: <strong>{{ sidebar_low_stock_count }} produk</strong></div>
+                <div class="insight-sub">{{ sidebar_oos_count }} produk habis total</div>
+              </div>
+            </div>
+            {% endif %}
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">💡</div>
+            <div class="empty-state-text">Belum ada data untuk insight</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ═══════════════════════════════════════════
+     SECTION 4: PRODUCT PERFORMANCE (6 + 6)
+     ═══════════════════════════════════════════ #}
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Produk Terlaris</span>
+          {% if top_products %}
+          <a href="{% url 'admin:products_product_changelist' %}" style="font-size:.75rem;color:var(--dash-text-muted);text-decoration:none;">Lihat Semua →</a>
+          {% endif %}
+        </div>
+        <div class="dash-card-body scroll-thin" style="max-height:400px;">
+          {% if top_products %}
+          {% for p in top_products|slice:":5" %}
+          <div class="rank-item">
+            <div class="rank-num" style="{% if forloop.counter == 1 %}background:rgba(245,158,11,.2);color:#F59E0B;{% elif forloop.counter == 2 %}background:rgba(156,163,175,.2);color:#D1D5DB;{% elif forloop.counter == 3 %}background:rgba(180,83,9,.2);color:#D97706;{% else %}background:rgba(107,114,128,.15);color:var(--dash-text-muted);{% endif %}">#{{ forloop.counter }}</div>
+            {% if p.image %}
+            <img src="{{ p.image }}" alt="{{ p.name }}" class="rank-thumb">
+            {% else %}
+            <div class="rank-thumb-placeholder">🧴</div>
+            {% endif %}
+            <div class="rank-info">
+              <div class="rank-name">{{ p.name }}</div>
+              <div class="rank-meta">{{ p.total_sold }} terjual &middot; {{ p.revenue|rupiah }}</div>
+              <div class="rank-bar">
+                <div class="rank-bar-fill" style="width:{{ p.pct }}%;{% if forloop.counter == 1 %}background:linear-gradient(90deg,#F59E0B,#D97706);{% elif forloop.counter == 2 %}background:linear-gradient(90deg,#9CA3AF,#6B7280);{% elif forloop.counter == 3 %}background:linear-gradient(90deg,#D97706,#92400E);{% else %}background:linear-gradient(90deg,#3B82F6,#2563EB);{% endif %}"></div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <div class="empty-state-text">Belum ada data penjualan produk</div>
+            <a href="{% url 'admin:products_product_add' %}" class="empty-state-btn">Tambah Produk</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Pertumbuhan Pelanggan</span>
+          <span style="font-size:.72rem;color:var(--dash-text-muted);">30 hari</span>
+        </div>
+        <div class="dash-card-body">
+          <div class="chart-sm">
+            <canvas id="growthChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ═══════════════════════════════════════════
+     SECTION 5: ORDER STATUS
+     ═══════════════════════════════════════════ #}
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Status Pesanan</span>
+          <span style="font-size:.72rem;color:var(--dash-text-muted);">{{ orders_total }} total</span>
+        </div>
+        <div class="dash-card-body d-flex align-items-center gap-4">
+          {% if status_counts %}
+          <div class="chart-donut">
+            <canvas id="statusDonut"></canvas>
+          </div>
+          <div class="status-legend" style="flex:1;">
+            {% for s, info in status_counts.items %}
+            <div class="status-legend-item">
+              <span class="status-dot" style="background:{{ s|status_color }};"></span>
+              <span class="status-label">{{ info.label }}</span>
+              <span class="status-count">{{ info.count }}</span>
+              <span class="status-pct">{% widthratio info.count orders_total 100 %}%</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state w-100">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-text">Belum ada pesanan</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="dash-card h-100">
+        <div class="dash-card-header">
+          <span class="dash-card-title">Ringkasan Pesanan</span>
+        </div>
+        <div class="dash-card-body">
+          {% if has_orders %}
+          <div class="row g-3">
+            <div class="col-3 col-md-3">
+              <div style="font-size:.7rem;color:var(--dash-text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px;">Dibayar</div>
+              <div style="font-size:22px;font-weight:700;color:#3B82F6;">{{ payments_success }}</div>
+            </div>
+            <div class="col-3 col-md-3">
+              <div style="font-size:.7rem;color:var(--dash-text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px;">Tertunda</div>
+              <div style="font-size:22px;font-weight:700;color:#F59E0B;">{{ payments_pending }}</div>
+            </div>
+            <div class="col-3 col-md-3">
+              <div style="font-size:.7rem;color:var(--dash-text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px;">Gagal</div>
+              <div style="font-size:22px;font-weight:700;color:#EF4444;">{{ payments_failed }}</div>
+            </div>
+            <div class="col-3 col-md-3">
+              <div style="font-size:.7rem;color:var(--dash-text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px;">Total</div>
+              <div style="font-size:22px;font-weight:700;color:var(--dash-text);">{{ orders_total }}</div>
+            </div>
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-text">Belum ada ringkasan pesanan</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ═══════════════════════════════════════════
+     SECTION 6: MONTHLY SUMMARY TABLE
+     ═══════════════════════════════════════════ #}
+  <div class="dash-card mb-4">
+    <div class="dash-card-header">
+      <span class="dash-card-title">Ringkasan Bulanan</span>
+      <span style="font-size:.72rem;color:var(--dash-text-muted);">12 bulan terakhir</span>
+    </div>
+    <div class="dash-card-body" style="padding:0;">
+      {% if monthly_data %}
+      <div class="dash-table-wrap scroll-thin" style="max-height:400px;">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)">Bulan ↕</th>
+              <th onclick="sortTable(1)">Pendapatan ↕</th>
+              <th onclick="sortTable(2)">Pesanan ↕</th>
+              <th onclick="sortTable(3)">Pelanggan Baru ↕</th>
+            </tr>
+          </thead>
+          <tbody id="monthlyTableBody">
+            {% for m in monthly_data %}
+            <tr>
+              <td>{{ m.label }}</td>
+              <td>{{ m.revenue|rupiah }}</td>
+              <td>{{ m.orders }}</td>
+              <td>{{ m.new_customers }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📅</div>
+        <div class="empty-state-text">Belum ada data bulanan</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ═══════════════════════════════════════════
+     SECTION 7: ACTIVITY TIMELINE
+     ═══════════════════════════════════════════ #}
+  <div class="dash-card mb-4">
+    <div class="dash-card-header">
+      <span class="dash-card-title">Aktivitas Terbaru</span>
+      {% if activities %}
+      <span style="font-size:.72rem;color:var(--dash-text-muted);">{{ activities|length }} aktivitas</span>
+      {% endif %}
+    </div>
+    <div class="dash-card-body scroll-thin" style="max-height:480px;">
+      {% if activities %}
+      <div class="timeline">
+        {% for a in activities %}
+        <a href="{{ a.url }}" class="timeline-item" style="text-decoration:none;">
+          <div class="timeline-dot" style="{% if a.type == 'order' %}border-color:#3B82F6;color:#3B82F6;{% elif a.type == 'payment' %}border-color:#10B981;color:#10B981;{% elif a.type == 'review' %}border-color:#F59E0B;color:#F59E0B;{% endif %}">
+            {% if a.type == 'order' %}🛒{% elif a.type == 'payment' %}💳{% elif a.type == 'review' %}⭐{% endif %}
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-text">{{ a.text }}</div>
+            <div class="timeline-meta">
+              <span class="timeline-badge" style="{% if a.type == 'order' %}background:rgba(59,130,246,.12);color:#60A5FA;{% elif a.type == 'payment' %}background:rgba(16,185,129,.12);color:#34D399;{% elif a.type == 'review' %}background:rgba(245,158,11,.12);color:#FBBF24;{% endif %}">{{ a.status }}</span>
+              <span class="timeline-time">{{ a.time|timesince }} yang lalu</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">💬</div>
+        <div class="empty-state-text">Belum ada aktivitas</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ chart_dates|json_script:"chart-dates" }}
+{{ revenue_chart|json_script:"revenue-chart" }}
+{{ orders_chart|json_script:"orders-chart" }}
+{{ reg_dates|json_script:"reg-dates" }}
+{{ reg_counts|json_script:"reg-counts" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<script>
+function createDarkGradient(ctx, height, c1, c2) {
+  var g = ctx.createLinearGradient(0, 0, 0, height || 360);
+  g.addColorStop(0, c1);
+  g.addColorStop(1, c2);
+  return g;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Period tab switching ──
+  window.showPeriod = function(period) {
+    document.querySelectorAll('.kpi-text').forEach(function(el) {
+      el.style.opacity = '0';
+      setTimeout(function() {
+        el.textContent = el.dataset[period];
+        el.style.opacity = '1';
+      }, 50);
+    });
+    document.querySelectorAll('.growth-badge-el').forEach(function(el) {
+      var val = parseFloat(el.dataset[period]);
+      if (isNaN(val)) { el.innerHTML = el.dataset[period]; return; }
+      var cls = 'growth-badge growth-badge-el ';
+      if (val > 0) cls += 'growth-up';
+      else if (val < 0) cls += 'growth-down';
+      else cls += 'growth-flat';
+      el.className = cls;
+      el.innerHTML = (val >= 0 ? '↑' : '↓') + ' ' + Math.abs(val).toFixed(1) + '%';
+    });
+    document.querySelectorAll('.growth-period-text').forEach(function(el) {
+      el.textContent = el.dataset[period];
+    });
+    document.querySelectorAll('.pill-btn[data-period]').forEach(function(el) {
+      el.classList.toggle('active', el.dataset.period === period);
+    });
+  };
+
+  var todayBtn = document.querySelector('.pill-btn[data-period="today"]');
+  if (todayBtn) todayBtn.classList.add('active');
+
+  // ── Table sorting ──
+  window.sortTable = function(col) {
+    var tbody = document.getElementById('monthlyTableBody');
+    if (!tbody) return;
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    var dir = tbody.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+    tbody.dataset.sortDir = dir;
+    rows.sort(function(a, b) {
+      var va = a.children[col].textContent.trim();
+      var vb = b.children[col].textContent.trim();
+      if (col === 0) {
+        var months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        var pa = va.split(' ');
+        var pb = vb.split(' ');
+        var da = parseInt(months.indexOf(pa[0])) + parseInt(pa[1]) * 12;
+        var db = parseInt(months.indexOf(pb[0])) + parseInt(pb[1]) * 12;
+        return dir === 'asc' ? da - db : db - da;
+      }
+      var na = parseInt(va.replace(/[^0-9]/g,'')) || 0;
+      var nb = parseInt(vb.replace(/[^0-9]/g,'')) || 0;
+      return dir === 'asc' ? na - nb : nb - na;
+    });
+    rows.forEach(function(r) { tbody.appendChild(r); });
+  };
+
+  var firstRow = document.querySelector('#monthlyTableBody tr:first-child');
+  if (firstRow) firstRow.style.background = 'rgba(59,130,246,.05)';
+
+  if (typeof Chart === 'undefined') return;
+
+  var chartDates = JSON.parse(document.getElementById('chart-dates').textContent);
+  var chartRev = JSON.parse(document.getElementById('revenue-chart').textContent);
+  var chartOrd = JSON.parse(document.getElementById('orders-chart').textContent);
+
+  // ── Main Chart ──
+  var mc = document.getElementById('mainChart');
+  if (mc) {
+    var mainCtx = mc.getContext('2d');
+    new Chart(mainCtx, {
+      type: 'line',
+      data: {
+        labels: chartDates,
+        datasets: [
+          {
+            label: 'Pendapatan',
+            data: chartRev,
+            borderColor: '#10B981',
+            backgroundColor: createDarkGradient(mainCtx, 360, 'rgba(16,185,129,0.2)', 'rgba(16,185,129,0.01)'),
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#111827',
+            pointBorderWidth: 2,
+            pointRadius: 2,
+            pointHoverRadius: 6,
+            yAxisID: 'y',
+          },
+          {
+            label: 'Pesanan',
+            data: chartOrd,
+            borderColor: '#60A5FA',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointBackgroundColor: '#60A5FA',
+            pointBorderColor: '#111827',
+            pointBorderWidth: 2,
+            pointRadius: 1,
+            pointHoverRadius: 5,
+            yAxisID: 'y1',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: { boxWidth: 12, padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 11 }, color: '#9CA3AF' }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(17,24,39,0.95)',
+            titleFont: { size: 12 },
+            bodyFont: { size: 12 },
+            padding: 12,
+            cornerRadius: 8,
+            titleColor: '#F9FAFB',
+            bodyColor: '#D1D5DB',
+            callbacks: {
+              label: function(ctx) {
+                if (ctx.datasetIndex === 0) return 'Pendapatan: Rp ' + Number(ctx.raw).toLocaleString('id-ID');
+                return 'Pesanan: ' + ctx.raw;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { callback: function(v) { return 'Rp' + (v/1000).toFixed(0) + 'k'; }, font: { size: 10 }, color: '#6B7280' }
+          },
+          y1: {
+            beginAtZero: true,
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { stepSize: 1, font: { size: 10 }, color: '#6B7280' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { maxTicksLimit: 12, maxRotation: 0, font: { size: 10 }, color: '#6B7280' }
+          }
+        }
+      }
+    });
+  }
+
+  // ── Status Donut ──
+  var sd = document.getElementById('statusDonut');
+  if (sd) {
+    var sl = [], sdv = [], sc = [];
+    var scm = {
+      'pending_payment': '#F59E0B', 'paid': '#3B82F6', 'processing': '#8B5CF6',
+      'shipped': '#6B7280', 'delivered': '#10B981', 'completed': '#059669', 'cancelled': '#EF4444'
+    };
+    {% for s, info in status_counts.items %}
+    sl.push('{{ info.label }}'); sdv.push({{ info.count }}); sc.push(scm['{{ s }}'] || '#6B7280');
+    {% endfor %}
+    new Chart(sd, {
+      type: 'doughnut',
+      data: { labels: sl, datasets: [{ data: sdv, backgroundColor: sc, borderWidth: 0 }] },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(17,24,39,0.95)',
+            titleColor: '#F9FAFB',
+            bodyColor: '#D1D5DB',
+            padding: 10,
+            cornerRadius: 8,
+          }
+        },
+        cutout: '74%',
+      }
+    });
+  }
+
+  // ── Growth Chart ──
+  var gCtx = document.getElementById('growthChart');
+  if (gCtx) {
+    var gLabels = JSON.parse(document.getElementById('reg-dates').textContent);
+    var gData = JSON.parse(document.getElementById('reg-counts').textContent);
+    var hasGrowthData = gData.some(function(v) { return v > 0; });
+    if (hasGrowthData) {
+      var grad = createDarkGradient(gCtx.getContext('2d'), 200, 'rgba(139,92,246,0.2)', 'rgba(139,92,246,0.01)');
+      new Chart(gCtx.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: gLabels,
+          datasets: [{
+            label: 'Pendaftaran',
+            data: gData,
+            borderColor: '#8B5CF6',
+            backgroundColor: grad,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#8B5CF6',
+            pointBorderColor: '#111827',
+            pointBorderWidth: 2,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(17,24,39,0.95)',
+              titleColor: '#F9FAFB',
+              bodyColor: '#D1D5DB',
+              padding: 10,
+              cornerRadius: 8,
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 }, color: '#6B7280' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 8, maxRotation: 0, font: { size: 10 }, color: '#6B7280' } }
+          },
+          interaction: { intersect: false, mode: 'index' }
+        }
+      });
+    } else {
+      var parent = gCtx.parentNode;
+      parent.innerHTML = '<div class="empty-state" style="height:200px;"><div class="empty-state-icon">👥</div><div class="empty-state-text">Belum ada pendaftaran baru</div></div>';
+    }
+  }
+});
+</script>
+{% endblock %}

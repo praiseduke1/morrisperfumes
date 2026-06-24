@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Pembayaran Tertunda - ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+    <div class="bg-white rounded-2xl border border-stone-100 p-8 shadow-sm">
+        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-serif font-bold text-stone-900 mb-2">Pembayaran Tertunda</h1>
+        <p class="text-stone-500 mb-2">{{ order.order_number }}</p>
+        <p class="text-2xl font-bold text-stone-900 mb-6">{{ order.total_price|rupiah }}</p>
+        <p class="text-stone-600 mb-4">Pembayaran Anda sedang diproses atau belum diselesaikan.</p>
+        <p class="text-sm text-stone-400 mb-8">Silakan selesaikan pembayaran Anda. Pesanan akan otomatis dibatalkan jika tidak dibayar dalam waktu 24 jam.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="{% url 'payments:checkout' order.id %}" class="bg-stone-900 hover:bg-stone-800 text-white px-8 py-3 rounded-xl font-semibold transition inline-flex items-center justify-center gap-2 active:scale-[0.98]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                Bayar Sekarang
+            </a>
+            <a href="{% url 'orders:detail' order.id %}" class="bg-stone-50 hover:bg-stone-100 text-stone-700 px-8 py-3 rounded-xl font-semibold transition inline-flex items-center justify-center gap-2">
+                Detail Pesanan
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

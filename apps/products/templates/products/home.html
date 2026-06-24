@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Parfum Morris — Temukan Aroma Khas Anda{% endblock %}
+
+{% block content %}
+
+{% comment %} Hero Section {% endcomment %}
+<section class="relative min-h-[90vh] flex items-center overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-morris-950 via-morris-900 to-morris-950"></div>
+    <div class="absolute top-20 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 left-0 w-80 h-80 bg-gold-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="max-w-3xl">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-gold-500/10 text-gold-400 text-sm font-medium rounded-full border border-gold-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                Koleksi 2026
+            </span>
+            <h1 class="mt-8 text-5xl sm:text-6xl lg:text-8xl font-serif font-bold text-white leading-[1.1] tracking-tight">
+                Find Your<br>
+                <span class="italic text-gold-400">Signature Scent</span>
+            </h1>
+            <p class="mt-6 text-lg text-morris-300 max-w-xl leading-relaxed">
+                Discover your identity through our premium fragrance collection. 
+                Every scent is designed to leave a lasting impression.
+            </p>
+            <div class="flex flex-wrap gap-4 mt-10">
+                <a href="{% url 'products:list' %}"
+                    class="inline-flex items-center gap-2 bg-gold-600 hover:bg-gold-500 text-white font-medium px-8 py-3.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98]">
+                    Explore Collection
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                </a>
+                <a href="{% url 'products:fragrance_guide' %}"
+                    class="inline-flex items-center gap-2 border border-morris-600 text-morris-300 font-medium px-8 py-3.5 rounded-xl hover:bg-morris-800 transition-all duration-300">
+                    Fragrance Guide
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% comment %} Categories Section {% endcomment %}
+<section id="categories" class="py-20 lg:py-28 bg-morris-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-xl mx-auto mb-16">
+            <span class="text-gold-500 font-medium text-sm tracking-[0.2em] uppercase">Categories</span>
+            <h2 class="mt-4 text-3xl lg:text-4xl font-serif font-bold text-white">Explore Fragrance Families</h2>
+            <p class="mt-4 text-morris-400 leading-relaxed">Find the scent that matches your personality and special moments</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            {% for category in categories %}
+            <a href="{% url 'products:list' %}?category={{ category.slug }}"
+                class="group relative bg-morris-900/50 rounded-2xl p-8 text-center hover:bg-gold-600/10 transition-all duration-500 border border-morris-800 hover:border-gold-500/30 hover:shadow-xl hover:-translate-y-1">
+                <div class="w-16 h-16 rounded-full bg-morris-800 flex items-center justify-center mx-auto mb-4 group-hover:bg-gold-600/20 transition-all duration-500 shadow-sm">
+                    <span class="text-xl font-serif font-bold text-gold-400 group-hover:text-gold-300 transition-colors duration-500">{{ category.name|first }}</span>
+                </div>
+                <h3 class="font-serif font-bold text-white group-hover:text-gold-400 transition-colors duration-500">{{ category.name }}</h3>
+                <p class="text-sm text-morris-400 mt-1.5 group-hover:text-morris-300 transition-colors duration-500">{{ category.product_count }} products</p>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center py-12 text-morris-400">
+                <p>No categories yet</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% comment %} Featured Products {% endcomment %}
+<section class="py-20 lg:py-28 bg-morris-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+            <div class="max-w-lg">
+                <span class="text-gold-500 font-medium text-sm tracking-[0.2em] uppercase">Featured</span>
+                <h2 class="mt-4 text-3xl lg:text-4xl font-serif font-bold text-white">Featured Products</h2>
+                <p class="mt-3 text-morris-400">Our finest selection curated just for you</p>
+            </div>
+            <a href="{% url 'products:list' %}" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-morris-400 hover:text-gold-400 transition-colors group">
+                View All
+                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {% for product in featured_products %}
+                {% include 'includes/product_card.html' with product=product %}
+            {% empty %}
+            <div class="col-span-full text-center py-12 text-morris-400">
+                <p>No products available</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-10 sm:hidden">
+            <a href="{% url 'products:list' %}" class="inline-flex items-center gap-2 text-sm font-medium text-gold-500 hover:text-gold-400 transition-colors">
+                View All Products
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+{% comment %} New Arrivals {% endcomment %}
+{% if new_products %}
+<section class="py-20 lg:py-28 bg-morris-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-xl mx-auto mb-16">
+            <span class="text-gold-500 font-medium text-sm tracking-[0.2em] uppercase">New</span>
+            <h2 class="mt-4 text-3xl lg:text-4xl font-serif font-bold text-white">New Arrivals</h2>
+            <p class="mt-4 text-morris-400">Fresh additions to delight your senses</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {% for product in new_products %}
+                {% include 'includes/product_card.html' with product=product %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% comment %} Stats Bar {% endcomment %}
+<section class="bg-morris-950 border-t border-morris-800 py-16 lg:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 text-center">
+            <div>
+                <p class="text-4xl lg:text-5xl font-serif font-bold text-gold-500">50+</p>
+                <p class="text-morris-400 mt-2 text-sm tracking-wide">Fragrance Variants</p>
+            </div>
+            <div>
+                <p class="text-4xl lg:text-5xl font-serif font-bold text-gold-500">100%</p>
+                <p class="text-morris-400 mt-2 text-sm tracking-wide">Authentic</p>
+            </div>
+            <div>
+                <p class="text-4xl lg:text-5xl font-serif font-bold text-gold-500">24h</p>
+                <p class="text-morris-400 mt-2 text-sm tracking-wide">Long Lasting</p>
+            </div>
+            <div>
+                <p class="text-4xl lg:text-5xl font-serif font-bold text-gold-500">Free</p>
+                <p class="text-morris-400 mt-2 text-sm tracking-wide">Delivery</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% comment %} CTA Section {% endcomment %}
+<section class="py-20 lg:py-28 bg-morris-900/30">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="text-gold-500 font-medium text-sm tracking-[0.2em] uppercase">Get Started</span>
+        <h2 class="mt-4 text-3xl lg:text-5xl font-serif font-bold text-white leading-tight">Ready to Find <span class="italic text-gold-400">Your</span> Scent?</h2>
+        <p class="mt-4 text-morris-400 max-w-lg mx-auto">Get your favorite fragrance now. Free delivery on your first purchase!</p>
+        <div class="flex flex-wrap justify-center gap-4 mt-10">
+            <a href="{% url 'products:list' %}"
+                class="bg-gold-600 hover:bg-gold-500 text-white font-medium px-10 py-4 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98]">
+                Start Shopping
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'accounts:register' %}"
+                class="border border-morris-600 text-morris-300 font-medium px-10 py-4 rounded-xl hover:bg-morris-800 transition-all duration-300">
+                Register Free
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

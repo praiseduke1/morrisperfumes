@@ -1,0 +1,285 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static core_tags %}
+
+{% block title %}Dashboard Analytics{% if subtitle %} | {{ subtitle }}{% endif %} | {{ site_header|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; {% trans 'Analytics Dashboard' %}
+</div>
+{% endblock %}
+
+{% block content_title %}<h1>Analytics Dashboard</h1>{% endblock %}
+
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="dashboard-grid stats-dashboard">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="stat-label">Pendapatan Hari Ini</div>
+        <div class="stat-value">{{ revenue_today|rupiah }}</div>
+        {% if revenue_today_change >= 0 %}
+        <div class="stat-change up">&uarr; {{ revenue_today_change }}% dari kemarin</div>
+        {% else %}
+        <div class="stat-change down">&darr; {{ revenue_today_change|cut:"-" }}% dari kemarin</div>
+        {% endif %}
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="stat-label">Pendapatan Bulan Ini</div>
+        <div class="stat-value">{{ revenue_month|rupiah }}</div>
+        <div class="stat-sub">{{ orders_month }} pesanan</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#d1fae5;color:#059669;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div class="stat-label">Pesanan Hari Ini</div>
+        <div class="stat-value">{{ orders_today }}</div>
+        <div class="stat-sub">{{ orders_pending }} pending</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;color:#7c3aed;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div class="stat-label">Total Pendapatan</div>
+        <div class="stat-value">{{ revenue_total|rupiah }}</div>
+        <div class="stat-sub">{{ orders_total }} transaksi</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fee2e2;color:#dc2626;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="stat-label">Produk</div>
+        <div class="stat-value">{{ products_total }}</div>
+        <div class="stat-sub">{{ products_available }} tersedia &middot; {{ products_low_stock }} menipis</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#fed7aa;color:#ea580c;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="stat-label">Pelanggan</div>
+        <div class="stat-value">{{ customers_total }}</div>
+        <div class="stat-sub">{{ customers_new_30d }} baru (30 hari)</div>
+    </div>
+</div>
+
+<!-- CHARTS ROW -->
+<div class="dashboard-grid two-col">
+    <div class="dashboard-card">
+        <h3>Pendapatan 7 Hari Terakhir</h3>
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+    <div class="dashboard-card">
+        <h3>Pesanan 7 Hari Terakhir</h3>
+        <div class="chart-container">
+            <canvas id="ordersChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid three-col">
+    <div class="dashboard-card">
+        <h3>Status Pesanan</h3>
+        <table class="dashboard-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr><td style="padding:6px 0;">Pending Payment</td><td style="text-align:right;"><span class="status-badge pending_payment"><span class="dot"></span>{{ orders_pending }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Paid</td><td style="text-align:right;"><span class="status-badge paid"><span class="dot"></span>{{ orders_paid }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Processing</td><td style="text-align:right;"><span class="status-badge processing"><span class="dot"></span>{{ orders_processing }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Shipped</td><td style="text-align:right;"><span class="status-badge shipped"><span class="dot"></span>{{ orders_shipped }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Delivered</td><td style="text-align:right;"><span class="status-badge delivered"><span class="dot"></span>{{ orders_delivered }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Cancelled</td><td style="text-align:right;"><span class="status-badge cancelled"><span class="dot"></span>{{ orders_cancelled }}</span></td></tr>
+        </table>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>Status Pembayaran</h3>
+        <table class="dashboard-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr><td style="padding:6px 0;">Total Transaksi</td><td style="text-align:right;"><strong>{{ payments_total }}</strong></td></tr>
+            <tr><td style="padding:6px 0;">Success</td><td style="text-align:right;"><span class="status-badge delivered"><span class="dot"></span>{{ payments_success }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Pending</td><td style="text-align:right;"><span class="status-badge pending_payment"><span class="dot"></span>{{ payments_pending }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Failed</td><td style="text-align:right;"><span class="status-badge cancelled"><span class="dot"></span>{{ payments_failed }}</span></td></tr>
+        </table>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>Inventaris</h3>
+        <table class="dashboard-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr><td style="padding:6px 0;">Tersedia</td><td style="text-align:right;"><strong>{{ products_available }}</strong></td></tr>
+            <tr><td style="padding:6px 0;">Stok Menipis (&le;5)</td><td style="text-align:right;"><span class="status-badge pending_payment"><span class="dot"></span>{{ products_low_stock }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Stok Habis</td><td style="text-align:right;"><span class="status-badge cancelled"><span class="dot"></span>{{ products_out_of_stock }}</span></td></tr>
+        </table>
+        <h3 style="margin-top:16px;">Member Level</h3>
+        <table class="dashboard-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr><td style="padding:6px 0;">Silver</td><td style="text-align:right;"><strong>{{ members_silver }}</strong></td></tr>
+            <tr><td style="padding:6px 0;">Gold</td><td style="text-align:right;"><span class="status-badge pending_payment"><span class="dot"></span>{{ members_gold }}</span></td></tr>
+            <tr><td style="padding:6px 0;">Platinum</td><td style="text-align:right;"><span class="status-badge processing"><span class="dot"></span>{{ members_platinum }}</span></td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="dashboard-grid two-col">
+    <div class="dashboard-card">
+        <h3>Produk Terlaris</h3>
+        {% if top_products %}
+        <table class="dashboard-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr><th style="text-align:left;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Produk</th><th style="text-align:right;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Terjual</th></tr>
+            </thead>
+            <tbody>
+            {% for p in top_products %}
+                <tr>
+                    <td style="padding:8px 0;border-bottom:1px solid var(--border-light);">{{ p.product_name }}</td>
+                    <td style="padding:8px 0;border-bottom:1px solid var(--border-light);text-align:right;font-weight:600;">{{ p.total_sold }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:13px;">Belum ada data penjualan.</p>
+        {% endif %}
+    </div>
+
+    <div class="dashboard-card">
+        <h3>Kategori Produk</h3>
+        {% if categories %}
+        <table class="dashboard-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr><th style="text-align:left;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Kategori</th><th style="text-align:right;padding:8px 0;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);">Produk</th></tr>
+            </thead>
+            <tbody>
+            {% for cat in categories %}
+                <tr>
+                    <td style="padding:8px 0;border-bottom:1px solid var(--border-light);">{{ cat.name }}</td>
+                    <td style="padding:8px 0;border-bottom:1px solid var(--border-light);text-align:right;font-weight:600;">{{ cat.product_count }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:13px;">Belum ada kategori.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-card" style="margin-bottom:20px;">
+    <h3>Aktivitas Terbaru</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+    {% for notif in notifications %}
+        <div class="notif-card {{ notif.type }}">
+            <div class="notif-icon">
+                {% if notif.type == 'warning' %}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                {% elif notif.type == 'danger' %}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                {% elif notif.type == 'success' %}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                {% else %}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                {% endif %}
+            </div>
+            <div class="notif-text">{{ notif.text }}</div>
+        </div>
+    {% empty %}
+        <p style="color:var(--text-muted);font-size:13px;">Tidak ada notifikasi.</p>
+    {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ revenue_labels|json_script:"revenue-labels" }}
+{{ revenue_data|json_script:"revenue-data" }}
+{{ orders_labels|json_script:"orders-labels" }}
+{{ orders_data|json_script:"orders-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var rLabels = document.getElementById('revenue-labels');
+    var rData = document.getElementById('revenue-data');
+    var oLabels = document.getElementById('orders-labels');
+    var oData = document.getElementById('orders-data');
+
+    if (rLabels && rData) {
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'bar',
+            data: {
+                labels: JSON.parse(rLabels.textContent),
+                datasets: [{
+                    label: 'Pendapatan (Rp)',
+                    data: JSON.parse(rData.textContent),
+                    backgroundColor: 'rgba(224,138,0,0.2)',
+                    borderColor: '#E08A00',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: function(v) { return 'Rp' + (v/1000).toFixed(0) + 'k'; } }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    if (oLabels && oData) {
+        new Chart(document.getElementById('ordersChart'), {
+            type: 'line',
+            data: {
+                labels: JSON.parse(oLabels.textContent),
+                datasets: [{
+                    label: 'Pesanan',
+                    data: JSON.parse(oData.textContent),
+                    borderColor: '#7c3aed',
+                    backgroundColor: 'rgba(124,58,237,0.08)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#7c3aed',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    },
+                    x: { grid: { display: false } }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

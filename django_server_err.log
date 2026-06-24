@@ -1,0 +1,375 @@
+Watching for file changes with StatReloader
+[23/Jun/2026 19:16:28] "GET / HTTP/1.1" 200 70065
+[23/Jun/2026 19:16:28] "GET /static/favicon.svg HTTP/1.1" 304 0
+[23/Jun/2026 19:16:30] "GET /fragrance-guide/ HTTP/1.1" 200 23776
+[23/Jun/2026 19:16:31] "GET /accounts/login/?next=/fragrance-guide/ HTTP/1.1" 200 18367
+[23/Jun/2026 19:16:32] "GET /about-morris/ HTTP/1.1" 200 20722
+[23/Jun/2026 19:16:34] "GET /accounts/login/?next=/about-morris/ HTTP/1.1" 200 18364
+[23/Jun/2026 19:16:45] "GET /accounts/register/ HTTP/1.1" 200 19098
+D:\opencode\parfumoray\apps\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\products\apps.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\parfumoray\urls.py changed, reloading.
+Watching for file changes with StatReloader
+[23/Jun/2026 19:36:02] "GET /products/ HTTP/1.1" 200 31442
+[23/Jun/2026 19:36:02] "GET /static/favicon.svg HTTP/1.1" 304 0
+D:\opencode\parfumoray\apps\products\views.py changed, reloading.
+Watching for file changes with StatReloader
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\autoreload.py", line 64, in wrapper
+    fn(*args, **kwargs)
+    ~~^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\management\commands\runserver.py", line 134, in inner_run
+    self.check(**check_kwargs)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\management\base.py", line 496, in check
+    all_issues = checks.run_checks(
+        app_configs=app_configs,
+    ...<2 lines>...
+        databases=databases,
+    )
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\registry.py", line 89, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\urls.py", line 44, in check_url_namespaces_unique
+    all_namespaces = _load_all_namespaces(resolver)
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\urls.py", line 63, in _load_all_namespaces
+    url_patterns = getattr(resolver, "url_patterns", [])
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\resolvers.py", line 729, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\resolvers.py", line 722, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "D:\opencode\parfumoray\parfumoray\urls.py", line 15, in <module>
+    path('', include('apps.products.urls')),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "D:\opencode\parfumoray\apps\products\urls.py", line 2, in <module>
+    from . import views
+  File "D:\opencode\parfumoray\apps\products\views.py", line 31, in <module>
+    @method_decorator(cache_page(60 * 5), name='dispatch')
+     ^^^^^^^^^^^^^^^^
+NameError: name 'method_decorator' is not defined
+D:\opencode\parfumoray\apps\products\views.py changed, reloading.
+Watching for file changes with StatReloader
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\autoreload.py", line 64, in wrapper
+    fn(*args, **kwargs)
+    ~~^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\management\commands\runserver.py", line 134, in inner_run
+    self.check(**check_kwargs)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\management\base.py", line 496, in check
+    all_issues = checks.run_checks(
+        app_configs=app_configs,
+    ...<2 lines>...
+        databases=databases,
+    )
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\registry.py", line 89, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\urls.py", line 44, in check_url_namespaces_unique
+    all_namespaces = _load_all_namespaces(resolver)
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\urls.py", line 63, in _load_all_namespaces
+    url_patterns = getattr(resolver, "url_patterns", [])
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\resolvers.py", line 729, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\resolvers.py", line 722, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "D:\opencode\parfumoray\parfumoray\urls.py", line 15, in <module>
+    path('', include('apps.products.urls')),
+             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "D:\opencode\parfumoray\apps\products\urls.py", line 2, in <module>
+    from . import views
+  File "D:\opencode\parfumoray\apps\products\views.py", line 122, in <module>
+    @method_decorator(cache_page(60 * 5), name='dispatch')
+     ^^^^^^^^^^^^^^^^
+NameError: name 'method_decorator' is not defined
+D:\opencode\parfumoray\apps\products\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\products\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\forms.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\forms.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\forms.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\forms.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\parfumoray\settings.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\parfumoray\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\autoreload.py", line 64, in wrapper
+    fn(*args, **kwargs)
+    ~~^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\management\commands\runserver.py", line 134, in inner_run
+    self.check(**check_kwargs)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\management\base.py", line 496, in check
+    all_issues = checks.run_checks(
+        app_configs=app_configs,
+    ...<2 lines>...
+        databases=databases,
+    )
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\registry.py", line 89, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\urls.py", line 44, in check_url_namespaces_unique
+    all_namespaces = _load_all_namespaces(resolver)
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\core\checks\urls.py", line 63, in _load_all_namespaces
+    url_patterns = getattr(resolver, "url_patterns", [])
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\resolvers.py", line 729, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\resolvers.py", line 722, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "D:\opencode\parfumoray\parfumoray\urls.py", line 17, in <module>
+    path('accounts/', include('apps.accounts.urls')),
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\urls\conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+  File "C:\Users\dekop\AppData\Local\Python\pythoncore-3.14-64\Lib\importlib\__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "D:\opencode\parfumoray\apps\accounts\urls.py", line 3, in <module>
+    from . import views
+  File "D:\opencode\parfumoray\apps\accounts\views.py", line 14, in <module>
+    from .forms import CustomerAddressForm, LoginForm, RegisterForm, ProfileUpdateForm
+  File "D:\opencode\parfumoray\apps\accounts\forms.py", line 85, in <module>
+    class CustomerAddressForm(forms.ModelForm):
+    ...<57 lines>...
+            return addr
+  File "D:\opencode\parfumoray\venv\Lib\site-packages\django\forms\models.py", line 336, in __new__
+    raise FieldError(message)
+django.core.exceptions.FieldError: Unknown field(s) (address) specified for CustomerAddress
+D:\opencode\parfumoray\apps\accounts\admin.py changed, reloading.
+Watching for file changes with StatReloader
+HomeView — user=None username= superuser=False
+[23/Jun/2026 20:31:12] "GET / HTTP/1.1" 200 23046
+[23/Jun/2026 20:31:14] "GET /accounts/login/?next=/ HTTP/1.1" 200 18351
+[23/Jun/2026 20:31:18] "GET /admin/ HTTP/1.1" 302 0
+[23/Jun/2026 20:31:18] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4082
+[23/Jun/2026 20:31:22] "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4263
+[23/Jun/2026 20:31:35] "POST /accounts/login/?next=/ HTTP/1.1" 200 19046
+HomeView — user=None username= superuser=False
+[23/Jun/2026 20:31:48] "GET / HTTP/1.1" 200 23046
+[23/Jun/2026 20:31:51] "GET /accounts/login/?next=/ HTTP/1.1" 200 18351
+HomeView — user=None username= superuser=False
+[23/Jun/2026 20:31:53] "GET / HTTP/1.1" 200 23046
+HomeView — user=None username= superuser=False
+[23/Jun/2026 20:36:01] "GET / HTTP/1.1" 200 23046
+HomeView — user=None username= superuser=False
+[23/Jun/2026 20:37:57] "GET / HTTP/1.1" 200 23046
+[23/Jun/2026 20:38:08] "GET /accounts/login/?next=/ HTTP/1.1" 200 18351
+[23/Jun/2026 20:41:09] "GET /accounts/login/?next=/ HTTP/1.1" 200 18351
+[23/Jun/2026 20:41:09] "GET /static/favicon.svg HTTP/1.1" 304 0
+[23/Jun/2026 20:41:16] "POST /accounts/login/?next=/ HTTP/1.1" 200 19046
+[23/Jun/2026 20:41:23] "GET /admin/ HTTP/1.1" 302 0
+[23/Jun/2026 20:41:23] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4082
+[23/Jun/2026 20:41:27] "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+[23/Jun/2026 20:41:27] "GET /admin/ HTTP/1.1" 200 24059
+[23/Jun/2026 20:41:32] "GET /admin/accounts/profile/ HTTP/1.1" 200 23084
+[23/Jun/2026 20:41:32] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+[23/Jun/2026 20:41:36] "GET /admin/auth/user/ HTTP/1.1" 200 25120
+[23/Jun/2026 20:41:36] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+HomeView — user=1 username=admin superuser=True
+[23/Jun/2026 20:42:09] "GET / HTTP/1.1" 200 67429
+[23/Jun/2026 20:42:21] "GET /fragrance-guide/ HTTP/1.1" 200 24906
+ProductListView — user=1 username=admin superuser=True
+[23/Jun/2026 20:42:23] "GET /products/ HTTP/1.1" 200 67213
+[23/Jun/2026 20:42:26] "GET /accounts/logout/ HTTP/1.1" 302 0
+ProductListView — user=None username= superuser=False
+[23/Jun/2026 20:42:26] "GET /products/ HTTP/1.1" 200 70536
+[23/Jun/2026 20:47:06] "GET /accounts/login/?next=/products/ HTTP/1.1" 200 18360
+[23/Jun/2026 20:47:20] "POST /accounts/login/?next=/products/ HTTP/1.1" 302 0
+ProductListView — user=3 username=budi superuser=False
+[23/Jun/2026 20:47:20] "GET /products/ HTTP/1.1" 200 84674
+[23/Jun/2026 20:47:26] "GET /accounts/dashboard/ HTTP/1.1" 200 33678
+[23/Jun/2026 20:47:30] "GET /accounts/profile/ HTTP/1.1" 200 26496
+[23/Jun/2026 20:47:33] "GET /accounts/dashboard/addresses/ HTTP/1.1" 200 29755
+[23/Jun/2026 20:47:35] "GET /accounts/dashboard/addresses/create/ HTTP/1.1" 200 71423
+[23/Jun/2026 20:48:36] "POST /accounts/dashboard/addresses/create/ HTTP/1.1" 302 0
+[23/Jun/2026 20:48:36] "GET /accounts/dashboard/addresses/ HTTP/1.1" 200 32375
+[23/Jun/2026 20:48:41] "GET /accounts/member/ HTTP/1.1" 200 40734
+HomeView — user=3 username=budi superuser=False
+[23/Jun/2026 20:48:48] "GET / HTTP/1.1" 200 84896
+ProductListView — user=3 username=budi superuser=False
+[23/Jun/2026 20:48:50] "GET /products/ HTTP/1.1" 200 84674
+[23/Jun/2026 20:48:54] "GET /cart/add/10/ HTTP/1.1" 302 0
+[23/Jun/2026 20:48:54] "GET /cart/ HTTP/1.1" 200 30913
+[23/Jun/2026 20:49:00] "GET /accounts/dashboard/ HTTP/1.1" 200 34126
+[23/Jun/2026 20:49:04] "GET /promotions/ HTTP/1.1" 200 21205
+D:\opencode\parfumoray\apps\orders\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\payments\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\products\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\products\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\payments\midtrans.py changed, reloading.
+Watching for file changes with StatReloader
+[23/Jun/2026 21:01:52] "GET /payment/checkout/1/ HTTP/1.1" 200 21252
+[23/Jun/2026 21:01:59] "GET /cart/ HTTP/1.1" 200 21658
+ProductListView — user=6 username=alma superuser=False
+[23/Jun/2026 21:02:01] "GET /products/ HTTP/1.1" 200 84674
+[23/Jun/2026 21:02:03] "GET /cart/add/10/ HTTP/1.1" 302 0
+[23/Jun/2026 21:02:03] "GET /cart/ HTTP/1.1" 200 30913
+[23/Jun/2026 21:02:05] "GET /orders/create/ HTTP/1.1" 200 34553
+[23/Jun/2026 21:02:35] "POST /orders/create/ HTTP/1.1" 200 35723
+[23/Jun/2026 21:02:45] "POST /orders/create/ HTTP/1.1" 302 0
+[23/Jun/2026 21:02:45] "GET /payment/checkout/2/ HTTP/1.1" 200 22811
+D:\opencode\parfumoray\apps\orders\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\orders\models.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\payments\midtrans.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\payments\midtrans.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\payments\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\opencode\parfumoray\apps\payments\views.py changed, reloading.
+Watching for file changes with StatReloader
+HomeView — user=None username= superuser=False
+[23/Jun/2026 21:10:18] "GET / HTTP/1.1" 200 70987
+[23/Jun/2026 21:10:23] "GET /admin/ HTTP/1.1" 302 0
+[23/Jun/2026 21:10:23] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4082
+[23/Jun/2026 21:10:31] "POST /admin/login/?next=/admin/ HTTP/1.1" 200 4263
+[23/Jun/2026 21:20:42] "GET /admin/promotions/voucher/ HTTP/1.1" 302 0
+[23/Jun/2026 21:20:42] "GET /admin/login/?next=/admin/promotions/voucher/ HTTP/1.1" 200 4120
+[23/Jun/2026 21:20:50] "POST /admin/login/?next=/admin/promotions/voucher/ HTTP/1.1" 302 0
+[23/Jun/2026 21:20:50] "GET /admin/promotions/voucher/ HTTP/1.1" 200 27205
+[23/Jun/2026 21:20:50] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+[23/Jun/2026 21:20:54] "GET /admin/auth/user/ HTTP/1.1" 200 26479
+[23/Jun/2026 21:20:54] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+[23/Jun/2026 21:20:57] "GET /admin/accounts/profile/ HTTP/1.1" 200 24167
+[23/Jun/2026 21:20:57] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+[23/Jun/2026 21:21:00] "GET /admin/promotions/voucher/ HTTP/1.1" 200 27205
+[23/Jun/2026 21:21:00] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+[23/Jun/2026 21:21:04] "GET /admin/products/review/ HTTP/1.1" 200 23050
+[23/Jun/2026 21:21:04] "GET /admin/jsi18n/ HTTP/1.1" 200 7830
+[23/Jun/2026 21:21:06] "GET /accounts/login/?next=/ HTTP/1.1" 302 0
+HomeView — user=2 username=admin superuser=True
+[23/Jun/2026 21:21:06] "GET / HTTP/1.1" 200 67429

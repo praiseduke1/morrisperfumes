@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Belum Bisa Review — ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="w-20 h-20 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path>
+        </svg>
+    </div>
+    <h1 class="text-2xl font-serif font-bold text-stone-900">Belum Bisa Memberi Ulasan</h1>
+    <p class="text-stone-500 mt-3 leading-relaxed">
+        Kamu harus membeli <strong class="text-stone-700">{{ product.name }}</strong> terlebih dahulu
+        sebelum dapat menulis ulasan.
+    </p>
+    <p class="text-stone-400 text-sm mt-1">Ulasan hanya untuk pembeli yang sudah melakukan transaksi.</p>
+    <div class="mt-8 flex items-center justify-center gap-3">
+        <a href="{% url 'products:detail' product.slug %}"
+            class="inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-medium px-6 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md text-sm">
+            Kembali ke Produk
+        </a>
+        <a href="{% url 'products:list' %}"
+            class="inline-flex items-center gap-2 border border-stone-200 text-stone-600 hover:bg-stone-50 font-medium px-6 py-3 rounded-xl transition-all text-sm">
+            Jelajahi Produk
+        </a>
+    </div>
+</div>
+{% endblock %}

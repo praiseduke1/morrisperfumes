@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Parfum Morris — Premium Fragrance{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Temukan signature scent Anda di Parfum Morris. Koleksi parfum premium dengan aroma elegan dan tahan lama untuk pria dan wanita.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}parfum morris, parfum premium, wewangian elegan, parfum pria, parfum wanita, fragrance, perfume indonesia{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Parfum Morris — Premium Fragrance{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Temukan signature scent Anda di Parfum Morris. Koleksi parfum premium dengan aroma elegan dan tahan lama.{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Parfum Morris">
+    <meta name="robots" content="index, follow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .alert-enter { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        .animate-fade-in-up { animation: fadeIn 0.6s ease-out; }
+        .animate-fade-in-delay { animation: fadeIn 0.6s ease-out 0.2s both; }
+        ::selection { background-color: #b8860b; color: white; }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #a3907e; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #8a7a6a; }
+        .text-balance { text-wrap: balance; }
+        .card-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06); }
+        .card-shadow-hover { box-shadow: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.04); }
+        .sidebar-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .skeleton-shimmer { background: linear-gradient(90deg, #e7e5e4 25%, #f5f5f4 37%, #e7e5e4 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+        @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['Playfair Display', 'serif'] },
+                    colors: {
+                        morris: {
+                            50: '#faf8f5',
+                            100: '#f0ebe3',
+                            200: '#ddd3c1',
+                            300: '#c4b39a',
+                            400: '#ab9379',
+                            500: '#967b60',
+                            600: '#7d654f',
+                            700: '#655143',
+                            800: '#54443a',
+                            900: '#473a33',
+                            950: '#261f1b',
+                        },
+                        gold: { 400: '#d4a853', 500: '#b8860b', 600: '#9a7209' },
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#F3ECE4] text-stone-800 min-h-screen flex flex-col antialiased">
+    {% include 'includes/navbar.html' %}
+    {% include 'includes/alert.html' %}
+
+    <main class="flex-1 animate-fade-in">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'includes/footer.html' %}
+
+    <div id="loading-overlay" class="fixed inset-0 bg-[#1A1411]/60 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="text-center">
+            <div class="w-10 h-10 border-2 border-stone-500 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-sm text-stone-300 font-medium">Memuat...</p>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() { document.getElementById('loading-overlay').classList.remove('hidden'); document.getElementById('loading-overlay').classList.add('flex'); }
+        function hideLoading() { document.getElementById('loading-overlay').classList.remove('flex'); document.getElementById('loading-overlay').classList.add('hidden'); }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

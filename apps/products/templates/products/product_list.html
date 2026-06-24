@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Koleksi Parfum — Parfum Morris{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+        <div>
+            <span class="text-amber-700 font-medium text-sm tracking-[0.2em] uppercase">Koleksi</span>
+            <h1 class="mt-2 text-3xl lg:text-4xl font-serif font-bold text-stone-800">
+                {% if selected_category %}
+                    {% for c in categories %}
+                        {% if c.slug == selected_category %}{{ c.name }}{% endif %}
+                    {% endfor %}
+                {% else %}
+                    Semua Parfum
+                {% endif %}
+            </h1>
+            <p class="text-stone-500 mt-2">
+                {% with count=page_obj.paginator.count %}
+                {{ count }} produk ditemukan
+                {% endwith %}
+            </p>
+        </div>
+        <form method="get" class="flex w-full lg:w-auto">
+            {% if selected_category %}
+            <input type="hidden" name="category" value="{{ selected_category }}">
+            {% endif %}
+            <div class="relative w-full lg:w-72">
+                <input type="text" name="q" value="{{ query }}" placeholder="Cari parfum..."
+                    class="w-full pl-4 pr-12 py-2.5 bg-white border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 text-sm text-stone-800 placeholder:text-stone-400 transition-all card-shadow">
+                <button type="submit"
+                    class="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 text-stone-400 hover:text-amber-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <aside class="lg:w-56 flex-shrink-0 space-y-6">
+            <div class="bg-[#2A1F1A] rounded-2xl p-6 sticky top-24 sidebar-shadow">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="font-bold text-stone-100">Kategori</h3>
+                    {% if selected_category %}
+                    <a href="{% url 'products:list' %}{% if query %}?q={{ query }}{% endif %}"
+                        class="text-sm text-amber-400 hover:text-amber-300 font-medium">Reset</a>
+                    {% endif %}
+                </div>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="{% url 'products:list' %}{% if query %}?q={{ query }}{% endif %}"
+                            class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                            {% if not selected_category %}bg-amber-600 text-stone-900{% else %}text-stone-400 hover:bg-stone-800/50{% endif %}">
+                            <span>Semua Produk</span>
+                            <span class="text-xs {% if not selected_category %}text-stone-900/70{% else %}text-stone-500{% endif %}">
+                                {{ categories|length }} kategori
+                            </span>
+                        </a>
+                    </li>
+                    {% for category in categories %}
+                    <li>
+                        <a href="{% url 'products:list' %}?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}"
+                            class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                            {% if selected_category == category.slug %}bg-amber-600 text-stone-900{% else %}text-stone-400 hover:bg-stone-800/50{% endif %}">
+                            <span>{{ category.name }}</span>
+                            <span class="text-xs {% if selected_category == category.slug %}text-stone-900/70{% else %}text-stone-500{% endif %}">
+                                {{ category.product_count }}
+                            </span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            {% if products %}
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div id="skeleton-grid" class="col-span-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {% for i in "123456"|make_list %}
+                        {% include 'includes/skeleton.html' %}
+                    {% endfor %}
+                </div>
+                <div id="product-items" class="col-span-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 hidden">
+                {% for product in products %}
+                    {% include 'includes/product_card.html' with product=product %}
+                {% endfor %}
+                </div>
+            </div>
+
+            {% if is_paginated %}
+            <div class="flex justify-center mt-14">
+                <nav class="flex items-center gap-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?{% query_transform page=page_obj.previous_page_number %}"
+                        class="px-4 py-2.5 rounded-xl border border-stone-300 text-stone-600 hover:bg-stone-100 transition-all text-sm font-medium bg-white card-shadow">
+                        &laquo; Sebelumnya
+                    </a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="px-4 py-2.5 rounded-xl bg-amber-600 text-stone-900 text-sm font-bold shadow-sm">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?{% query_transform page=num %}"
+                            class="px-4 py-2.5 rounded-xl border border-stone-300 text-stone-600 hover:bg-stone-100 transition-all text-sm font-medium bg-white card-shadow">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?{% query_transform page=page_obj.next_page_number %}"
+                        class="px-4 py-2.5 rounded-xl border border-stone-300 text-stone-600 hover:bg-stone-100 transition-all text-sm font-medium bg-white card-shadow">
+                        Selanjutnya &raquo;
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-20">
+                <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center mx-auto mb-6 card-shadow">
+                    <svg class="w-10 h-10 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-serif font-bold text-stone-700">Produk Tidak Ditemukan</h2>
+                <p class="text-stone-500 mt-2">Coba kata kunci atau kategori lain</p>
+                <a href="{% url 'products:list' %}"
+                    class="inline-flex items-center gap-2 mt-8 bg-amber-600 hover:bg-amber-500 text-stone-900 font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md">
+                    Reset Filter
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function() {
+        var skeleton = document.getElementById('skeleton-grid');
+        var items = document.getElementById('product-items');
+        if (skeleton && items) {
+            skeleton.classList.add('hidden');
+            items.classList.remove('hidden');
+        }
+    })();
+</script>
+{% endblock %}

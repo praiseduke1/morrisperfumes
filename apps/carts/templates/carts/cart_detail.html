@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Keranjang Belanja — ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div>
+            <h1 class="text-3xl lg:text-4xl font-serif font-bold text-stone-900">Keranjang Belanja</h1>
+            {% if total_items > 0 %}
+            <p class="text-stone-500 mt-1">{{ total_items }} item dalam keranjang</p>
+            {% endif %}
+        </div>
+        <a href="{% url 'products:list' %}"
+            class="inline-flex items-center gap-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors group">
+            <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Lanjut Belanja
+        </a>
+    </div>
+
+    {% if cart_items %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+        <div class="lg:col-span-2 space-y-4">
+            {% for item in cart_items %}
+            <div class="bg-white rounded-2xl border border-stone-100 p-4 md:p-6 hover:shadow-sm transition-shadow">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'products:detail' item.product.slug %}"
+                        class="w-full sm:w-24 h-24 bg-stone-50 rounded-xl overflow-hidden flex-shrink-0">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-stone-200">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </a>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <p class="text-[11px] font-medium text-amber-600 uppercase tracking-[0.15em]">{{ item.product.category.name }}</p>
+                                <a href="{% url 'products:detail' item.product.slug %}">
+                                    <h3 class="text-base font-serif font-bold text-stone-900 hover:text-amber-700 transition">{{ item.product.name }}</h3>
+                                </a>
+                                {% if item.variant %}
+                                <p class="text-xs text-stone-400 mt-0.5">{{ item.variant.size_ml }}ml</p>
+                                {% endif %}
+                            </div>
+                            <button type="button"
+                                onclick="confirmRemove('{{ item.id }}', '{{ item.product.name|escapejs }}')"
+                                class="text-stone-300 hover:text-rose-500 transition p-1 flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-4 gap-3">
+                            <p class="text-lg font-bold text-stone-900">{{ item.unit_price|rupiah }}</p>
+
+                            <div class="flex items-center gap-4">
+                                <form method="post" action="{% url 'carts:update' item.id %}" class="flex items-center">
+                                    {% csrf_token %}
+                                    <div class="flex items-center border border-stone-200 rounded-xl overflow-hidden">
+                                        <button type="submit" name="action" value="decrease"
+                                            class="w-10 h-10 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition font-bold text-lg"
+                                            {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                                        <span class="w-12 h-10 flex items-center justify-center text-sm font-bold text-stone-800 border-x border-stone-200">{{ item.quantity }}</span>
+                                        <button type="submit" name="action" value="increase"
+                                            class="w-10 h-10 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition font-bold text-lg"
+                                            {% if item.quantity >= item.variant.stock|default:item.product.stock %}disabled{% endif %}>+</button>
+                                    </div>
+                                </form>
+                                <p class="text-lg font-bold text-amber-700 min-w-[7rem] text-right">{{ item.total_price|rupiah }}</p>
+                            </div>
+                        </div>
+
+                        {% with max_stock=item.variant.stock|default:item.product.stock %}
+                        {% if item.quantity >= max_stock %}
+                        <p class="text-xs text-rose-500 mt-2 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Stok maksimum tercapai
+                        </p>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl border border-stone-100 p-6 sticky top-24 shadow-sm">
+                <h2 class="text-lg font-serif font-bold text-stone-900 mb-6">Ringkasan Belanja</h2>
+
+                <div class="space-y-3">
+                    {% for item in cart_items %}
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-600 truncate max-w-[180px]">
+                            {% if item.variant %}{{ item.product.name }} ({{ item.variant.size_ml }}ml){% else %}{{ item.product.name }}{% endif %}
+                            x{{ item.quantity }}
+                        </span>
+                        <span class="font-medium text-stone-800">{{ item.total_price|rupiah }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <hr class="my-4 border-stone-100">
+
+                <div class="space-y-2.5">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-500">Subtotal</span>
+                        <span class="font-medium text-stone-800">{{ subtotal|rupiah }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-500">Pengiriman</span>
+                        <span class="font-medium text-emerald-600">Gratis</span>
+                    </div>
+                    {% if voucher_discount %}
+                    <div class="flex justify-between text-sm">
+                        <span class="text-stone-500">Diskon Voucher</span>
+                        <span class="font-medium text-emerald-600">-{{ voucher_discount|rupiah }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr class="my-4 border-stone-100">
+
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-serif font-bold text-stone-900">Total</span>
+                    <span class="text-2xl font-bold text-stone-900">{{ final_total|default:subtotal|rupiah }}</span>
+                </div>
+
+                {% if voucher_code %}
+                <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-emerald-800">{{ voucher_code }}</p>
+                            <p class="text-xs text-emerald-600">Diskon: {{ voucher_discount|rupiah }}</p>
+                        </div>
+                        <form method="post" action="{% url 'carts:remove_voucher' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs text-rose-600 hover:text-rose-700 font-medium">Hapus</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="mt-4">
+                    <form method="post" action="{% url 'carts:apply_voucher' %}" class="flex gap-2">
+                        {% csrf_token %}
+                        <input type="text" name="code" placeholder="Kode voucher"
+                            class="flex-1 px-3 py-2 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600/20 focus:border-amber-600 uppercase">
+                        <button type="submit"
+                            class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-medium rounded-xl transition">Pakai</button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <a href="{% url 'orders:create' %}"
+                    class="mt-6 w-full bg-stone-900 hover:bg-stone-800 text-white font-medium py-3.5 px-6 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Checkout
+                </a>
+
+                <div class="mt-4 space-y-2">
+                    <div class="flex items-center gap-2 text-xs text-stone-400">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Pengiriman gratis
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-stone-400">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Pembayaran aman via Midtrans
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-20">
+        <div class="w-20 h-20 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"></path>
+            </svg>
+        </div>
+        <h2 class="text-xl font-serif font-bold text-stone-800">Keranjang Kosong</h2>
+        <p class="text-stone-500 mt-2 max-w-sm mx-auto">Anda belum menambahkan produk apapun. Yuk, cari parfum favorit Anda!</p>
+        <a href="{% url 'products:list' %}"
+            class="inline-flex items-center gap-2 mt-8 bg-stone-900 hover:bg-stone-800 text-white font-medium px-8 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"></path>
+            </svg>
+            Mulai Belanja
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmRemove(itemId, productName) {
+    if (confirm(`Hapus ${productName} dari keranjang?`)) {
+        window.location.href = "{% url 'carts:remove' 0 %}".replace('0', itemId);
+    }
+}
+</script>
+{% endblock %}

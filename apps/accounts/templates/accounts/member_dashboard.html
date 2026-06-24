@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Loyalty — ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        {% include 'accounts/includes/sidebar.html' %}
+
+        <div class="flex-1 min-w-0 space-y-8">
+            <div>
+                <span class="text-amber-600 font-medium text-sm tracking-[0.2em] uppercase">Loyalty</span>
+                <h1 class="mt-2 text-3xl lg:text-4xl font-serif font-bold text-stone-900">Program Member</h1>
+                <p class="text-stone-500 mt-1">Dapatkan poin dari setiap pembelian dan nikmati benefit spesial.</p>
+            </div>
+
+            {% with level=member.level %}
+            {% with level_data=levels_data|dict_key:level %}
+            <div class="bg-white rounded-3xl border border-stone-100 p-8 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                    <div class="w-20 h-20 rounded-2xl {{ level_data.icon_bg }} flex items-center justify-center flex-shrink-0">
+                        {% if level == 'PLATINUM' %}
+                        <svg class="w-10 h-10 {{ level_data.icon_color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                        </svg>
+                        {% elif level == 'GOLD' %}
+                        <svg class="w-10 h-10 {{ level_data.icon_color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
+                        </svg>
+                        {% else %}
+                        <svg class="w-10 h-10 {{ level_data.icon_color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <h2 class="text-2xl font-serif font-bold text-stone-900">Level {{ level_data.label }}</h2>
+                            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold {{ level_data.badge }}">{{ level_data.label }}</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-stone-50 rounded-2xl p-4">
+                                <p class="text-xs text-stone-500 font-medium uppercase tracking-wider">Total Poin</p>
+                                <p class="mt-1 text-2xl font-bold text-stone-900">{{ member.total_points }}</p>
+                            </div>
+                            <div class="bg-stone-50 rounded-2xl p-4">
+                                <p class="text-xs text-stone-500 font-medium uppercase tracking-wider">Total Belanja</p>
+                                <p class="mt-1 text-2xl font-bold text-stone-900">{{ member.total_spending|rupiah }}</p>
+                            </div>
+                            <div class="bg-stone-50 rounded-2xl p-4">
+                                <p class="text-xs text-stone-500 font-medium uppercase tracking-wider">Poin per Transaksi</p>
+                                <p class="mt-1 text-2xl font-bold text-stone-900">
+                                    {% if level == 'PLATINUM' %}2x{% elif level == 'GOLD' %}1.5x{% else %}1x{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% if level_data.next_threshold %}
+                        <p class="mt-4 text-sm text-stone-500 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            {{ level_data.next_threshold }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+            {% endwith %}
+
+            <div class="bg-white rounded-3xl border border-stone-100 p-8 shadow-sm">
+                <h2 class="text-xl font-serif font-bold text-stone-900 mb-6">Benefit Setiap Level</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {% for key, level_data in levels_data.items %}
+                    <div class="rounded-2xl border-2 p-6 transition-all duration-200
+                        {% if member.level == key %}{{ level_data.color }} shadow-sm{% else %}border-stone-200 bg-white{% endif %}">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl {{ level_data.icon_bg }} flex items-center justify-center">
+                                <span class="text-sm font-bold {{ level_data.icon_color }}">{{ key|first }}</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-stone-900">{{ level_data.label }}</h3>
+                                {% if member.level == key %}
+                                <span class="text-xs font-medium text-emerald-600">Level saat ini</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <ul class="space-y-2.5">
+                            {% for benefit in level_data.benefits %}
+                            <li class="flex items-start gap-2.5 text-sm text-stone-600">
+                                <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                {{ benefit }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-stone-100 p-8 shadow-sm">
+                <h2 class="text-xl font-serif font-bold text-stone-900 mb-6">Riwayat Poin</h2>
+                {% if points_history %}
+                <div class="space-y-0">
+                    {% for tx in points_history %}
+                    <div class="flex items-center justify-between py-3.5 border-b border-stone-50 last:border-b-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
+                                {% if tx.type == 'EARN' %}bg-emerald-100{% elif tx.type == 'UPGRADE' %}bg-amber-100{% else %}bg-rose-100{% endif %}">
+                                {% if tx.type == 'EARN' %}
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+                                </svg>
+                                {% elif tx.type == 'UPGRADE' %}
+                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                </svg>
+                                {% else %}
+                                <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-stone-800">{{ tx.description|default:tx.get_type_display }}</p>
+                                <p class="text-xs text-stone-400">{{ tx.created_at|date:"d F Y H:i" }}</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold
+                            {% if tx.type == 'EARN' or tx.type == 'UPGRADE' %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                            {% if tx.type == 'EARN' or tx.type == 'UPGRADE' %}+{% else %}-{% endif %}{{ tx.points }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-serif font-bold text-stone-800">Belum Ada Riwayat Poin</h3>
+                    <p class="text-sm text-stone-500 mt-2">Belanja dan dapatkan poin untuk menikmati benefit spesial!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

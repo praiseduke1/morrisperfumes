@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+{% load static %}
+
+{% block title %}Checkout — ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+        <h1 class="text-3xl lg:text-4xl font-serif font-bold text-stone-900">Checkout</h1>
+        <p class="text-stone-500 mt-2">Lengkapi informasi pengiriman untuk pesanan Anda</p>
+    </div>
+
+    <form method="post" novalidate id="checkoutForm">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            <div class="lg:col-span-2 space-y-6">
+                {% if form.errors %}
+                <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-rose-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm text-rose-600">Harap periksa kembali data yang Anda masukkan.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if addresses %}
+                <div class="bg-white rounded-2xl border border-stone-100 p-6 lg:p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-serif font-bold text-stone-900">Pilih Alamat Tersimpan</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for address in addresses %}
+                        <button type="button" onclick="selectAddress({{ address.id }})"
+                            class="address-card text-left p-4 rounded-xl border-2 transition cursor-pointer
+                            {% if address.is_default %}border-amber-500 bg-amber-50/50{% else %}border-stone-200 hover:border-stone-300 bg-white{% endif %}"
+                            data-id="{{ address.id }}"
+                            data-recipient="{{ address.recipient_name }}"
+                            data-phone="{{ address.phone }}"
+                            data-address="{{ address.address_line }}"
+                            data-province-id="{{ address.province_id }}"
+                            data-city-id="{{ address.city_id }}"
+                            data-district-id="{{ address.district_id }}"
+                            data-postalcode-id="{{ address.postal_code_id }}">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-bold text-stone-800">{{ address.label|default:"Alamat" }}</span>
+                                {% if address.is_default %}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-full">
+                                    <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    Utama
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm font-medium text-stone-900">{{ address.recipient_name }}</p>
+                            <p class="text-xs text-stone-500">{{ address.phone }}</p>
+                            <p class="text-xs text-stone-600 mt-1">{{ address.address_line|truncatechars:60 }}</p>
+                            <p class="text-xs text-stone-500">{{ address.district.name|default:'' }}{% if address.city.name %}, {% endif %}{{ address.city.name|default:'' }}{% if address.province %}, {{ address.province.name }}{% endif %}</p>
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-stone-400 mt-3">Klik alamat di atas untuk mengisi form secara otomatis, atau edit manual di bawah.</p>
+                </div>
+                {% endif %}
+
+                <div class="bg-white rounded-2xl border border-stone-100 p-6 lg:p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-serif font-bold text-stone-900">Informasi Penerima</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-stone-700 mb-1.5">Nama Penerima <span class="text-rose-500">*</span></label>
+                            {{ form.recipient_name }}
+                            {% if form.recipient_name.errors %}
+                            <p class="text-sm text-rose-500 mt-1">{{ form.recipient_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-stone-700 mb-1.5">Nomor Telepon <span class="text-rose-500">*</span></label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <p class="text-sm text-rose-500 mt-1">{{ form.phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-stone-100 p-6 lg:p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-serif font-bold text-stone-900">Alamat Pengiriman</h2>
+                    </div>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-stone-700 mb-1.5">Alamat Lengkap <span class="text-rose-500">*</span></label>
+                            {{ form.shipping_address }}
+                            {% if form.shipping_address.errors %}
+                            <p class="text-sm text-rose-500 mt-1">{{ form.shipping_address.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1.5">Provinsi <span class="text-rose-500">*</span></label>
+                                {{ form.province }}
+                                {% if form.province.errors %}
+                                <p class="text-sm text-rose-500 mt-1">{{ form.province.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1.5">Kota <span class="text-rose-500">*</span></label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                <p class="text-sm text-rose-500 mt-1">{{ form.city.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1.5">Kecamatan <span class="text-rose-500">*</span></label>
+                                {{ form.district }}
+                                {% if form.district.errors %}
+                                <p class="text-sm text-rose-500 mt-1">{{ form.district.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1.5">Kode Pos <span class="text-rose-500">*</span></label>
+                                {{ form.postal_code }}
+                                {% if form.postal_code.errors %}
+                                <p class="text-sm text-rose-500 mt-1">{{ form.postal_code.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-stone-100 p-6 lg:p-8 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-serif font-bold text-stone-900">Catatan</h2>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-1.5">Catatan Pesanan</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+
+                <div class="lg:hidden">
+                    <button type="submit"
+                        class="w-full bg-stone-900 hover:bg-stone-800 text-white font-medium py-3.5 px-6 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98]">
+                        Buat Pesanan
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-stone-100 p-6 sticky top-24 shadow-sm">
+                    <h2 class="text-lg font-serif font-bold text-stone-900 mb-6">Ringkasan Pesanan</h2>
+
+                    <div class="space-y-4">
+                        {% for item in cart_items %}
+                        <div class="flex gap-3">
+                            <div class="w-14 h-14 bg-stone-50 rounded-xl overflow-hidden flex-shrink-0">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy" class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-stone-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-stone-800 truncate">{{ item.product.name }}</p>
+                                {% if item.variant %}
+                                <p class="text-[11px] text-stone-400">{{ item.variant.size_ml }}ml</p>
+                                {% endif %}
+                                <p class="text-xs text-stone-400">{{ item.quantity }} x {{ item.unit_price|rupiah }}</p>
+                            </div>
+                            <p class="text-sm font-bold text-stone-800">{{ item.total_price|rupiah }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if user_vouchers %}
+                    <hr class="my-4 border-stone-100">
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-stone-700 mb-3">Voucher Saya</h3>
+                        <div class="space-y-2">
+                            {% for uv in user_vouchers %}
+                            <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition
+                                {% if selected_user_voucher and selected_user_voucher.id == uv.id %}
+                                border-emerald-400 bg-emerald-50
+                                {% else %}
+                                border-stone-200 hover:border-stone-300 bg-white
+                                {% endif %}">
+                                <input type="radio" name="user_voucher_id" value="{{ uv.id }}"
+                                    class="mt-0.5 text-emerald-600 focus:ring-emerald-500"
+                                    {% if selected_user_voucher and selected_user_voucher.id == uv.id %}checked{% endif %}>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">{{ uv.voucher.code }}</span>
+                                    </div>
+                                    <p class="text-sm font-bold text-stone-800">
+                                        {% if uv.voucher.discount_type == 'percentage' %}
+                                        {{ uv.voucher.discount_amount }}% OFF
+                                        {% else %}
+                                        {{ uv.voucher.discount_amount|rupiah }}
+                                        {% endif %}
+                                    </p>
+                                    {% if uv.voucher.min_purchase %}
+                                    <p class="text-[11px] text-stone-400">Min. {{ uv.voucher.min_purchase|rupiah }}</p>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-4 border-stone-100">
+
+                    <div class="space-y-2.5">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-stone-500">Subtotal ({{ total_items }} item)</span>
+                            <span class="font-medium text-stone-800">{{ subtotal|rupiah }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-stone-500">Pengiriman</span>
+                            <span class="font-medium text-emerald-600">Gratis</span>
+                        </div>
+                        {% if discount_amount %}
+                        <div class="flex justify-between text-sm">
+                            <span class="text-stone-500">Diskon</span>
+                            <span class="font-medium text-emerald-600">-{{ discount_amount|rupiah }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4 border-stone-100">
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-serif font-bold text-stone-900">Total</span>
+                        <span class="text-2xl font-bold text-stone-900">{{ final_total|rupiah }}</span>
+                    </div>
+
+                    <button type="submit"
+                        class="hidden lg:flex mt-6 w-full bg-stone-900 hover:bg-stone-800 text-white font-medium py-3.5 px-6 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md items-center justify-center gap-2 active:scale-[0.98]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Buat Pesanan
+                    </button>
+
+                    <div class="mt-4 space-y-2.5">
+                        <div class="flex items-center gap-2 text-xs text-stone-400">
+                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Pengiriman gratis
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-stone-400">
+                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Pembayaran aman via Midtrans
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-stone-400">
+                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Data Anda aman terenkripsi
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/cascading-address.js' %}"></script>
+{% endblock %}

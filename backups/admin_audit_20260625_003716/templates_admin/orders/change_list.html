@@ -1,0 +1,51 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+{% endblock %}
+
+{% block object-tools %}
+<div class="order-toolbar">
+    <a href="{% url 'admin:orders_order_changelist' %}?status__exact=pending_payment" class="btn-pending">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Pending Payment
+    </a>
+    <a href="{% url 'admin:orders_order_changelist' %}?status__exact=processing" class="btn-process">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Processing
+    </a>
+    <a href="{% url 'admin:orders_order_changelist' %}?status__exact=shipped" class="btn-ship">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Shipped
+    </a>
+    <a href="{% url 'admin:orders_order_changelist' %}?status__exact=delivered" class="btn-deliver">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Delivered
+    </a>
+    <a href="{% url 'admin:orders_order_changelist' %}?status__exact=cancelled" class="btn-cancel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelled
+    </a>
+</div>
+{{ block.super }}
+{% endblock %}
+
+{% block result_list %}
+{{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.status-badge').forEach(function(el) {
+        if (!el.querySelector('.dot')) {
+            var dot = document.createElement('span');
+            dot.className = 'dot';
+            el.prepend(dot);
+        }
+    });
+});
+</script>
+{% endblock %}

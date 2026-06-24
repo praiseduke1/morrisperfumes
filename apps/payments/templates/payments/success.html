@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Pembayaran Berhasil - ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+    <div class="bg-white rounded-2xl border border-stone-100 p-8 shadow-sm">
+        <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-serif font-bold text-stone-900 mb-2">Pembayaran Berhasil!</h1>
+        <p class="text-stone-500 mb-2">{{ order.order_number }}</p>
+        <p class="text-4xl font-bold text-emerald-600 mb-6">{{ order.total_price|rupiah }}</p>
+        <p class="text-stone-600 mb-8">Terima kasih, pesanan Anda akan segera diproses.</p>
+
+        {% if not verified %}
+        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-8 text-left">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-amber-800">Status pembayaran sedang diverifikasi</p>
+                    <p class="text-sm text-amber-700 mt-1">Status pesanan akan diperbarui otomatis dalam beberapa saat. Silakan refresh halaman ini nanti.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="{% url 'orders:detail' order.id %}" class="bg-stone-900 hover:bg-stone-800 text-white px-8 py-3 rounded-xl font-semibold transition inline-flex items-center justify-center gap-2 active:scale-[0.98]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                Lihat Pesanan
+            </a>
+            <a href="{% url 'products:list' %}" class="bg-stone-50 hover:bg-stone-100 text-stone-700 px-8 py-3 rounded-xl font-semibold transition inline-flex items-center justify-center gap-2">
+                Belanja Lagi
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

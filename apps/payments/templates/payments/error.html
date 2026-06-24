@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Pembayaran Gagal - ParfuMoray{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+    <div class="bg-white rounded-2xl border border-stone-100 p-8 shadow-sm">
+        <div class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-serif font-bold text-stone-900 mb-2">Pembayaran Gagal</h1>
+        <p class="text-stone-500 mb-2">{{ order.order_number }}</p>
+        <p class="text-2xl font-bold text-stone-900 mb-6">{{ order.total_price|rupiah }}</p>
+
+        {% if error %}
+        <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl mb-8 text-left">
+            <p class="text-sm text-rose-700">{{ error }}</p>
+        </div>
+        {% else %}
+        <p class="text-stone-600 mb-8">Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi dengan metode pembayaran lain.</p>
+        {% endif %}
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="{% url 'payments:checkout' order.id %}" class="bg-stone-900 hover:bg-stone-800 text-white px-8 py-3 rounded-xl font-semibold transition inline-flex items-center justify-center gap-2 active:scale-[0.98]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Coba Lagi
+            </a>
+            <a href="{% url 'orders:detail' order.id %}" class="bg-stone-50 hover:bg-stone-100 text-stone-700 px-8 py-3 rounded-xl font-semibold transition inline-flex items-center justify-center gap-2">
+                Detail Pesanan
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

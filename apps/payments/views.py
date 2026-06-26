@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import F
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -66,8 +66,10 @@ def checkout(request, order_id):
 
 def _ensure_order_owner(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    if not request.user.is_authenticated or request.user != order.user:
-        return redirect(f'{settings.LOGIN_URL}?next={reverse("orders:detail", args=[order_id])}')
+    if not request.user.is_authenticated:
+        return redirect(f'{reverse(settings.LOGIN_URL)}?next={reverse("orders:detail", args=[order_id])}')
+    if request.user != order.user:
+        raise Http404
     return order
 
 
